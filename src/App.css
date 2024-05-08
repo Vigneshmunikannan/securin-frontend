@@ -1,0 +1,59 @@
+/* Styles for the table */
+.list{
+  padding: 20px;
+  text-align: center;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  padding: 10%;
+}
+
+table th, table td {
+  padding: 8px;
+  border: 1px solid #ddd;
+}
+
+/* Styles for the pagination buttons */
+.pagination {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.pagination button {
+  background-color: #f0f0f0;
+  border: none;
+  color: #333;
+  padding: 8px 12px;
+  cursor: pointer;
+  margin-right: 4px;
+  border-radius: 4px;
+}
+
+.pagination button:hover {
+  background-color: #ddd;
+}
+
+.pagination button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Styles for the select dropdown */
+.select-container {
+  margin-top: 20px;
+}
+
+.select-container select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.bottom{
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
