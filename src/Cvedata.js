@@ -10,8 +10,7 @@ export default function Cvedata() {
   useEffect(() => {
     const fetchSingleData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/getsingledata/${id}`);
-        console.log(response.data)
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/cves/${id}`);
         setCveData(response.data);
       } catch (error) {
         setError(error.message);
@@ -21,7 +20,7 @@ export default function Cvedata() {
     };
 
     fetchSingleData();
-  }, []);
+  }, [id]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;

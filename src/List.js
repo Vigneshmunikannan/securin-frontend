@@ -1,23 +1,29 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-import axios from 'axios'
-export default function List() {
+const List = () => {
   const navigate = useNavigate();
   const [cves, setCves] = useState([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [resultsPerPage, setResultsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const [filters, setFilters] = useState({
+    year: '',
+    score: '',
+    lastModifiedDays: '',
+  });
+  const [sortOrder, setSortOrder] = useState('asc');
 
   useEffect(() => {
     fetchData();
-  }, [resultsPerPage, currentPage]);
+  }, [resultsPerPage, currentPage, filters, sortOrder]);
 
   const fetchData = async () => {
     try {
-      console.log(process.env.REACT_APP_API_URL, resultsPerPage, currentPage)
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/list?resultsPerPage=${resultsPerPage}&page=${currentPage}`);
-      console.log(response.data.cves)
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/cves/list`, {
+        params: { resultsPerPage, page: currentPage, ...filters, sortOrder },
+      });
       setCves(response.data.cves);
       setTotalRecords(response.data.totalRecords);
     } catch (error) {
@@ -34,9 +40,16 @@ export default function List() {
     setCurrentPage(page);
   };
 
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({ ...filters, [name]: value });
+  };
+
+  const handleSortChange = () => {
+    setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
+  };
+
   const totalPages = Math.ceil(totalRecords / resultsPerPage);
-
-
 
   const renderPaginationButtons = () => {
     const buttons = [];
@@ -59,7 +72,7 @@ export default function List() {
     }
 
     for (let page = startPage; page <= endPage; page++) {
-      buttons.push(renderPageButton(page));
+      buttons.push(" ", renderPageButton(page), " ");
     }
 
     // Next Page Button
@@ -78,48 +91,68 @@ export default function List() {
     </button>
   );
 
- function navigator(id){
-  navigate(`/cvedata/${id}`)
- }
+  const navigator = (id) => {
+    navigate(`/cves/${id}`);
+  };
 
   return (
-    <div className='list'>
+    <div className="list">
+      <div className="filters" style={{ display: "flex", alignItems: "center", justifyContent: "space-around" }}>
+        <label>
+          Year:
+          <input type="text" name="year" value={filters.year} onChange={handleFilterChange} />
+        </label>
+        <label>
+          Score:
+          <input type="text" name="score" value={filters.score} onChange={handleFilterChange} />
+        </label>
+        <label>
+          Last Modified (Days):
+          <input type="text" name="lastModifiedDays" value={filters.lastModifiedDays} onChange={handleFilterChange} />
+        </label>
+        <button onClick={handleSortChange} style={{ marginLeft: "10px" }}>Toggle Sort</button>
+      </div>
       <h1>CVEs List</h1>
       <p>Total Records: {totalRecords}</p>
       <table>
         <thead>
           <tr>
-            <th>CVE ID</th>
+            <th onClick={handleSortChange}>CVE ID</th>
             <th>Identifier</th>
             <th>Published</th>
-            <th>Last Modified</th>
+            <th onClick={handleSortChange}>Last Modified</th>
             <th>Status</th>
           </tr>
         </thead>
         <tbody>
-          {cves.map(cve => (
-            <tr key={cve.cveId}>
-              <td onClick={()=>{
-                navigator(cve.cveId)
-              }} style={{cursor:"pointer"}}>{cve.cveId}</td>
-              <td>{cve.sourceIdentifier}</td>
-              <td>{cve.published}</td>
-              <td>{cve.lastModified}</td>
-              <td>{cve.vulnStatus}</td>
-            </tr>
-          ))}
+          {
+            cves.length > 0 ? (
+              <>
+                {cves.map((cve) => (
+                  <tr key={cve.cveId} onClick={() => navigator(cve.cveId)} style={{ cursor: 'pointer' }}>
+                    <td>{cve.cveId}</td>
+                    <td>{cve.sourceIdentifier}</td>
+                    <td>{new Date(cve.published).toLocaleDateString()}</td>
+                    <td>{new Date(cve.lastModified).toLocaleDateString()}</td>
+                    <td>{cve.vulnStatus}</td>
+                  </tr>
+                ))}
+              </>
+            ) : <tr><td colSpan="5">No records found {cves.length}</td></tr>
+          }
+
         </tbody>
       </table>
-      <div className='bottom'>
+      <div className="bottom">
         <select value={resultsPerPage} onChange={handleResultsPerPageChange}>
           <option value="10">10</option>
           <option value="50">50</option>
           <option value="100">100</option>
         </select>
-        <div>
-          {renderPaginationButtons()}
-        </div>
+        <div>{renderPaginationButtons()}</div>
       </div>
     </div>
   );
-}
+};
+
+export default List;

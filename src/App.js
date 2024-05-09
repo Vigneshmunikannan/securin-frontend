@@ -8,8 +8,8 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<List />} />
-          <Route path="/cvedata/:id" element={<Cvedata />} />
+          <Route path="cves/list" element={<List />} />
+          <Route path="cves/:id" element={<Cvedata />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
